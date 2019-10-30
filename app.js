@@ -60,7 +60,6 @@ const resolvers = {
     registerUser: async (root, args) => {
       let salt = createSalt()
       let newUser = args.user
-      // console.log(salt, newUser.password);
       let hash = sha512(newUser.password, salt)
       const client = await pool.connect()
       let { rows: [{did}] }  = await client.query(
@@ -68,8 +67,6 @@ const resolvers = {
           ORDER BY did
           DESC LIMIT 1`
       )
-      console.log(hash)
-      //      console.log(did, salt, hash, newUser);
       let text = `INSERT INTO users 
         (email, first_name, last_name, phone_number, password, salt, did)
         VALUES ($1, $2, $3, $4, $5, $6, $7)`
@@ -83,7 +80,7 @@ const resolvers = {
         did + 1,
       ]
       let { rows: [user] } = await client.query(text, values)
-      console.log(user);
+      client.release()
       return user;
     }
   }

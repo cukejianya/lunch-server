@@ -23,7 +23,7 @@ const typeDefs = `
   }
 
   type Mutation {
-    registerUser(user: newUser): Int 
+    registerUser(user: newUser): User 
   }
 
   input newUser {
@@ -94,7 +94,7 @@ const resolvers = {
       ]
       await client.query(text, values)
       client.release()
-      return resolvers.
+      return await resolvers.Query.getUser(null, {email: newUser.email})
     },
   }
 }

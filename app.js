@@ -19,11 +19,11 @@ const typeDefs = `
 
   type Query {
     getUser(did: Int, email: String): User
-    authenticateUser(email: String, password: String): User
+    loginUser(email: String, password: String): Boolean 
   }
 
   type Mutation {
-    registerUser(user: newUser): User
+    registerUser(user: newUser): Int 
   }
 
   input newUser {
@@ -54,6 +54,18 @@ const resolvers = {
       client.release()
       console.log(rows)
       return  rows[0]
+    },
+    loginUser: async (root, args) => {
+      let {email, password} = args
+      const client = await pool.connect()
+      let { rows: [ authObj ] } = await client.query(
+        `SELECT password, salt FROM users where email=$1`,
+        [email]
+      )
+      client.release()
+      let hash = sha512(password, authObj.salt)
+
+      return hash === authObj.password
     }
   },
   Mutation: {
@@ -62,11 +74,12 @@ const resolvers = {
       let newUser = args.user
       let hash = sha512(newUser.password, salt)
       const client = await pool.connect()
-      let { rows: [{did}] }  = await client.query(
+      let { rows } = await client.query(
         `SELECT did FROM users
           ORDER BY did
           DESC LIMIT 1`
       )
+      let did = (rows.length) ? rows[0]['did'] : 0
       let text = `INSERT INTO users 
         (email, first_name, last_name, phone_number, password, salt, did)
         VALUES ($1, $2, $3, $4, $5, $6, $7)`
@@ -79,10 +92,10 @@ const resolvers = {
         salt,
         did + 1,
       ]
-      let { rows: [user] } = await client.query(text, values)
+      await client.query(text, values)
       client.release()
-      return user;
-    }
+      return resolvers.
+    },
   }
 }
 
@@ -91,7 +104,7 @@ function createSalt() {
 }
 
 function sha512(password, salt) {
-  return crypto.createHash('sha512', password).update(salt).digest('hex')
+  return crypto.createHash('sha512').update(password + salt).digest('hex')
 }
 
 const schema = makeExecutableSchema({

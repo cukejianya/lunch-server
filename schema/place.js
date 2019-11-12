@@ -2,8 +2,6 @@ const typeDefs =`
 type Place {
   title: String
   highlightedTitle: String
-  first_name: String
-  last_name: String
   phone_number: String
   position: [Float]
   vicinity: String

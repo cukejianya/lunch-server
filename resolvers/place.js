@@ -21,8 +21,8 @@ const placeResolver = {
         cat: ['eat-drink'],
       })
       
-      let results = response.results;
-      console.log(result)
+      let results = response.results || [];
+      console.log(response, results)
       return results.filter(place => [
         'snacks-fast-food',
         'restaurant',

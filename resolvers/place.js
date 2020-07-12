@@ -16,9 +16,9 @@ const placeResolver = {
       const {lat, lng, title} = args;
       
       let response = await hereAPI('/autosuggest', {
-        at: [lat, lng],
         q: title,
         cat: ['eat-drink'],
+        in: `${lat},${lng};r=30000`,
       })
       
       let results = response.results || [];
@@ -27,7 +27,10 @@ const placeResolver = {
         'snacks-fast-food',
         'restaurant',
         'eat-drink'
-      ].includes(place.category))
+      ].includes(place.category)).map((place, id) => {
+        place.id = id;
+        return place;
+      })
     },
   }
 }

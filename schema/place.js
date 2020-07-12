@@ -1,5 +1,6 @@
 const typeDefs =`
 type Place {
+  id: ID
   title: String
   highlightedTitle: String
   phone_number: String
